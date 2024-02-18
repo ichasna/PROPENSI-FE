@@ -1,36 +1,42 @@
 "use client";
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 
-function page() {
-
-    const [message, setMessage] = useState("Loading")
-    const [members, setMembers] = useState([])
-
-    useEffect(() => {
-        fetch("http://localhost:8080/api/int/home").then(
-            response => response.json()
-        ).then(
-            data => {
-                console.log(data)
-                setMessage(data.message)
-                setMembers(data.members)
-            }
-        )
-    }, [])
-
-    return (
-        <div>
-            <div>{message}</div>
-            {
-                members.map((member, index) => (
-                    <div key={index}>
-                        {member}
-                    </div>
-                ))
-            }
-        </div>
-
-    )
+interface Member {
+  nama: string;
+  role: string;
 }
 
-export default page
+const MembersList: React.FC = () => {
+  const [members, setMembers] = useState<Member[]>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/api/names")
+      .then(response => response.json())
+      .then((data: Member[] | any) => {
+        console.log(data); 
+        if (Array.isArray(data)) {
+            console.log('this is data')
+          setMembers(data);
+        } else {
+          console.error('Invalid data structure received');
+
+          setMembers([]);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching data', error);
+      });
+  }, []);
+
+  return (
+    <div>
+      {members.map((member, index) => (
+        <div key={index}>
+          {member.nama} - {member.role}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default MembersList;
